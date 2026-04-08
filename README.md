@@ -4,10 +4,10 @@ A Python library for detecting file types using multiple inference strategies, i
 
 ## Features
 
-- **Multiple Inference Methods**: Choose from lexical, magic-based, AI-powered, or cascading inference strategies
+- **Multiple Inference Methods**: Choose from lexical, magic-based, AI-powered, or hybrid inference strategies
 - **Type-Safe API**: Type hints and type-safe inference method selection
 - **Flexible Input**: Supports both `Path` objects and string paths
-- **Performance Optimized**: Cascading inferencer intelligently combines methods for optimal performance
+- **Performance Optimized**: Hybrid inference combines Magic and Magika when it improves the result
 - **Well-Tested**: Comprehensive test suite with logging support
 - **Extensible**: Base class architecture for custom inferencer implementations
 
@@ -27,7 +27,7 @@ rye sync
 
 ### System Dependencies
 
-**Important**: `MagicInferencer` and `CascadingInferencer` require the `libmagic` system library to be installed.
+**Important**: `MagicInferencer` and `HybridInferencer` require the `libmagic` system library to be installed.
 
 #### Ubuntu/Debian
 
@@ -92,16 +92,16 @@ If the command works, `libmagic` is properly installed.
 
 ## Quick Start
 
-**Recommended**: Use `CascadingInferencer` for the best balance of performance and accuracy:
+**Recommended**: Use `AutoInferencer` with `backend="hybrid"` for the best balance of performance and accuracy:
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.auto_inferencer import AutoInferencer
 
-inferencer = CascadingInferencer()
+inferencer = AutoInferencer(backend="hybrid")
 extension = inferencer.infer("document.pdf")  # Returns: '.pdf'
 ```
 
-For more examples and usage patterns, see the [User Guide](https://filetype-detector.readthedocs.io/user-guide/).
+For more examples and usage patterns, see the [documentation site](https://filetype-detector.readthedocs.io/).
 
 ## Performance Comparison
 
@@ -112,14 +112,14 @@ Choose the right inferencer based on your needs:
 | **LexicalInferencer** | < 0.001ms | Minimal | 50,000+ files/sec | Trusted extensions |
 | **MagicInferencer** | ~1-5ms | Low | 200-500 files/sec | Content-based detection |
 | **MagikaInferencer** | ~5-10ms* | High** | 100-200 files/sec | Highest accuracy (text) |
-| **CascadingInferencer** | ~1-6ms | Medium | 150-400 files/sec | **⭐ Recommended default** |
+| **HybridInferencer** | ~1-6ms | Medium | 150-400 files/sec | **⭐ Recommended default** |
 
 \* After initial model load (~100-200ms one-time overhead)  
 \*\* Model loaded into memory (~50-100MB)
 
 ### Recommendation
 
-**For most use cases**: Use `CascadingInferencer` - it automatically optimizes by using Magic for binary files and Magika for text files, providing the best balance of performance and accuracy.
+**For most use cases**: Use `AutoInferencer(backend="hybrid")` - it delegates to `HybridInferencer`, which automatically uses Magic for binary files and Magika for text files.
 
 **For specific needs**:
 - **Maximum speed**: `LexicalInferencer` (when extensions are trusted)
@@ -167,14 +167,14 @@ extension = inferencer.infer("script.py")  # Returns: '.py'
 extension, score = inferencer.infer_with_score("data.json")  # Returns: ('.json', 0.98)
 ```
 
-### CascadingInferencer ⭐ Recommended
+### HybridInferencer
 
 Smart two-stage approach: uses Magic for all files, then Magika for text files.
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 # Text file - uses Magic then Magika
 extension = inferencer.infer("script.py")  # Returns: '.py' (from Magika)
@@ -183,6 +183,8 @@ extension = inferencer.infer("script.py")  # Returns: '.py' (from Magika)
 extension = inferencer.infer("document.pdf")  # Returns: '.pdf' (from Magic)
 ```
 
+If you want the same behavior through the unified interface, use `AutoInferencer(backend="hybrid")`.
+
 **System Requirements**: Requires `libmagic` system library. See [Installation](#installation) section.
 
 ## Key Features
@@ -190,11 +192,18 @@ extension = inferencer.infer("document.pdf")  # Returns: '.pdf' (from Magic)
 - ✅ **Multiple inference strategies** - Choose the right method for your use case
 - ✅ **Type-safe API** - Full type hints and type-safe method selection
 - ✅ **Flexible input** - Supports both `Path` objects and string paths
-- ✅ **Performance optimized** - Cascading inferencer intelligently combines methods
+- ✅ **Performance optimized** - Hybrid inference combines fast binary detection with more detailed text detection
 - ✅ **Well-tested** - Comprehensive test suite
 - ✅ **Extensible** - Base class architecture for custom implementations
 
-For detailed usage examples, error handling, and advanced patterns, see the [User Guide](https://filetype-detector.readthedocs.io/user-guide/).
+## Documentation
+
+- Tutorial: [Getting Started](https://filetype-detector.readthedocs.io/getting-started/)
+- How-to Guides: choosing an inferencer, bulk processing, and extending the library
+- Reference: API pages for `AutoInferencer`, `BaseInferencer`, and each inferencer
+- Explanation: inference strategy trade-offs and architecture notes
+
+For detailed usage examples, error handling, and advanced patterns, see the [documentation site](https://filetype-detector.readthedocs.io/).
 
 ## Testing
 
@@ -213,7 +222,7 @@ pytest tests/ -v -s
 Run specific test files:
 
 ```bash
-pytest tests/test_cascading_inferencer.py -v
+pytest tests/test_hybrid_inferencer.py -v
 pytest tests/test_magic_inferencer.py -v
 pytest tests/test_magika_inferencer.py -v
 pytest tests/test_lexical_inferencer.py -v

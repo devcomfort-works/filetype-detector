@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide will help you get started with `filetype-detector` quickly.
+This tutorial takes you from installation to the first successful file type detection.
 
 ## Installation
 
@@ -26,7 +26,7 @@ rye sync
 
 ### System Libraries
 
-**Important**: `MagicInferencer` and `CascadingInferencer` require the `libmagic` system library. Install it based on your operating system:
+**Important**: `MagicInferencer` and `HybridInferencer` require the `libmagic` system library. Install it based on your operating system:
 
 #### Ubuntu/Debian
 
@@ -92,14 +92,14 @@ If this command works, `libmagic` is properly installed and `MagicInferencer` wi
 
 ## Basic Usage
 
-### Recommended: CascadingInferencer
+### Recommended: HybridInferencer
 
-For most use cases, start with `CascadingInferencer` - it provides the best balance of performance and accuracy:
+For most use cases, start with `AutoInferencer(backend="hybrid")` - it provides a single entry point with the same balanced behavior as `HybridInferencer`:
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.auto_inferencer import AutoInferencer
 
-inferencer = CascadingInferencer()
+inferencer = AutoInferencer(backend="hybrid")
 extension = inferencer.infer("document.pdf")  # Returns: '.pdf'
 ```
 
@@ -115,21 +115,23 @@ extension = inferencer.infer("document.pdf")
 print(extension)  # Output: '.pdf'
 ```
 
-### Using the Inferencer Map
+### Using AutoInferencer
 
-For type-safe method selection, use the centralized map:
+For type-safe backend selection, use `AutoInferencer`:
 
 ```python
-from filetype_detector.inferencer import FILE_FORMAT_INFERENCER_MAP
+from filetype_detector.auto_inferencer import AutoInferencer
 
-magic = FILE_FORMAT_INFERENCER_MAP["magic"]
-extension = magic("file_without_ext")  # Returns detected type
+magic = AutoInferencer(backend="magic")
+extension = magic.infer("file_without_ext")  # Returns detected type
 ```
 
-See the [User Guide](user-guide.md) for detailed usage instructions and [Inferencer Map](api/inferencer-map.md) for type-safe selection patterns.
+See [Examples and Patterns](user-guide.md) for longer examples and [AutoInferencer](api/auto_inferencer.md) for backend selection details.
 
 ## Next Steps
 
-- Read the [User Guide](user-guide.md) for comprehensive usage instructions, examples, and performance tips
-- Explore the [API Reference](api/base.md) for complete API documentation
+- Read the [How-to Guides](how-to/index.md) when you want to solve a specific task
+- Browse [Examples and Patterns](user-guide.md) for reusable snippets and larger examples
+- Use the [Reference Overview](reference/index.md) when you need exact API details
+- Read the [Explanation Overview](explanation/index.md) for design rationale and trade-offs
 

@@ -1,6 +1,7 @@
-# User Guide
+# Examples and Patterns
 
-Comprehensive guide to using `filetype-detector` effectively.
+This page collects reusable examples, performance patterns, and integration snippets.
+Use the [How-to Guides](how-to/index.md) for focused tasks and the [Reference Overview](reference/index.md) for exact API details.
 
 ## Overview
 
@@ -9,7 +10,7 @@ Comprehensive guide to using `filetype-detector` effectively.
 1. **LexicalInferencer**: Fastest, extension-based
 2. **MagicInferencer**: Content-based using magic numbers
 3. **MagikaInferencer**: AI-powered with confidence scores
-4. **CascadingInferencer**: Hybrid approach (recommended)
+4. **HybridInferencer**: Hybrid approach (recommended)
 
 ## LexicalInferencer
 
@@ -37,7 +38,7 @@ extension = inferencer.infer("file_without_ext")  # Returns: ''
 - Cannot detect files without extensions
 - Returns empty string for files without extensions
 
-See [LexicalInferencer API](api/lexical.md) for complete documentation.
+See [LexicalInferencer API](api/lexical_inferencer.md) for complete documentation.
 
 ## MagicInferencer
 
@@ -63,7 +64,7 @@ extension = inferencer.infer("document.pdf")  # Returns: '.pdf'
 extension = inferencer.infer("data.txt")  # Returns: '.json' if it's actually JSON
 ```
 
-See [MagicInferencer API](api/magic.md) for complete documentation including error handling.
+See [MagicInferencer API](api/magic_inferencer.md) for complete documentation including error handling.
 
 ## MagikaInferencer
 
@@ -89,9 +90,9 @@ extension, score = inferencer.infer_with_score("data.json")
 print(f"Extension: {extension}, Confidence: {score:.2%}")
 ```
 
-See [MagikaInferencer API](api/magika.md) for complete documentation including prediction modes.
+See [MagikaInferencer API](api/magika_inferencer.md) for complete documentation including prediction modes.
 
-## CascadingInferencer
+## HybridInferencer
 
 A two-stage inference strategy that combines Magic and Magika intelligently.
 
@@ -115,9 +116,9 @@ Requires `libmagic` system library. See [Getting Started](getting-started.md#sys
 ### Example
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 # Text file - uses Magic then Magika
 extension = inferencer.infer("script.py")  # Returns: '.py' (from Magika)
@@ -126,11 +127,11 @@ extension = inferencer.infer("script.py")  # Returns: '.py' (from Magika)
 extension = inferencer.infer("document.pdf")  # Returns: '.pdf' (from Magic)
 ```
 
-See [CascadingInferencer API](api/cascading.md) for complete documentation.
+See [HybridInferencer API](api/hybrid_inferencer.md) for complete documentation.
 
-## Using the Inferencer Map
+## Using AutoInferencer
 
-For type-safe method selection, use the centralized `FILE_FORMAT_INFERENCER_MAP`. See [Inferencer Map](api/inferencer-map.md) for detailed usage patterns.
+For type-safe backend selection, use `AutoInferencer`. See [AutoInferencer](api/auto_inferencer.md) for detailed usage patterns.
 
 ## Handling Different Input Types
 
@@ -153,7 +154,7 @@ assert extension1 == extension2
 
 ## Best Practices
 
-1. **Use CascadingInferencer by default** - Best balance of performance and accuracy
+1. **Use HybridInferencer by default** - Best balance of performance and accuracy
 2. **Handle exceptions** - Always wrap inference calls in try-except blocks
 3. **Check for empty strings** - LexicalInferencer can return empty strings
 4. **Use confidence scores** - For MagikaInferencer, use `infer_with_score()` when accuracy matters
@@ -168,7 +169,7 @@ assert extension1 == extension2
 | LexicalInferencer | < 0.001ms | Minimal | 50,000+ files/sec | Trusted extensions |
 | MagicInferencer | ~1-5ms | Low | 200-500 files/sec | Content-based detection |
 | MagikaInferencer | ~5-10ms* | High** | 100-200 files/sec | Highest accuracy (text) |
-| CascadingInferencer | ~1-6ms | Medium | 150-400 files/sec | **Recommended default** |
+| HybridInferencer | ~1-6ms | Medium | 150-400 files/sec | **Recommended default** |
 
 \* After initial model load (~100-200ms one-time overhead)  
 \*\* Model loaded into memory (~50-100MB)
@@ -207,8 +208,8 @@ inferencer = MagicInferencer()  # Good balance
 
 **For mixed content (recommended):**
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
-inferencer = CascadingInferencer()  # Optimizes automatically
+from filetype_detector.hybrid_inferencer import HybridInferencer
+inferencer = HybridInferencer()  # Optimizes automatically
 ```
 
 #### 3. Batch Processing
@@ -217,11 +218,11 @@ For large batches, consider parallel processing:
 
 ```python
 from concurrent.futures import ThreadPoolExecutor
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 from pathlib import Path
 
 def detect_type(file_path: Path) -> tuple[str, str]:
-    inferencer = CascadingInferencer()
+    inferencer = HybridInferencer()
     try:
         ext = inferencer.infer(file_path)
         return (str(file_path), ext)
@@ -257,20 +258,20 @@ inferencer = CachedMagicInferencer()
 # Subsequent calls with same file path use cache
 ```
 
-For detailed performance characteristics of each inferencer, see the [API Reference](api/base.md).
+For detailed performance characteristics of each inferencer, see the [BaseInferencer API](api/base_inferencer.md).
 
 ## Examples
 
 ### Batch Processing with Error Handling
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 from pathlib import Path
 from typing import Dict
 
 def batch_detect(file_paths: list[Path]) -> Dict[str, str]:
     """Detect file types for multiple files."""
-    inferencer = CascadingInferencer()
+    inferencer = HybridInferencer()
     results = {}
     
     for file_path in file_paths:
@@ -345,13 +346,13 @@ if result:
 ### Directory Scanner
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 from pathlib import Path
 from collections import Counter
 
 def scan_directory(directory: Path) -> dict[str, int]:
     """Scan directory and count file types."""
-    inferencer = CascadingInferencer()
+    inferencer = HybridInferencer()
     type_counts = Counter()
     
     for file_path in directory.rglob("*"):
@@ -397,15 +398,15 @@ print(f"Detected: {result}")
 ### Type-Safe File Router
 
 ```python
-from filetype_detector.inferencer import InferencerType, FILE_FORMAT_INFERENCER_MAP
+from filetype_detector.auto_inferencer import AutoInferencer, BackendType
 from pathlib import Path
 from typing import Callable
 
 class FileRouter:
     """Route files based on type."""
     
-    def __init__(self, method: InferencerType = "magic"):
-        self.inferencer = FILE_FORMAT_INFERENCER_MAP[method]
+    def __init__(self, backend: BackendType = "magic"):
+        self.inferencer = AutoInferencer(backend=backend)
         self.handlers: dict[str, Callable] = {}
     
     def register(self, extension: str, handler: Callable):
@@ -414,7 +415,7 @@ class FileRouter:
     
     def route(self, file_path: Path):
         """Route file to appropriate handler."""
-        extension = self.inferencer(file_path)
+        extension = self.inferencer.infer(file_path)
         handler = self.handlers.get(extension)
         
         if handler:
@@ -422,7 +423,7 @@ class FileRouter:
         return None
 
 # Usage
-router = FileRouter(method="magic")
+router = FileRouter(backend="magic")
 router.register(".pdf", lambda p: print(f"Processing PDF: {p}"))
 router.register(".py", lambda p: print(f"Processing Python: {p}"))
 
@@ -436,12 +437,12 @@ router.route(Path("script.py"))     # Output: Processing Python: script.py
 
 ```python
 import pandas as pd
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 from pathlib import Path
 
 def create_file_type_dataframe(directory: Path) -> pd.DataFrame:
     """Create DataFrame with file type information."""
-    inferencer = CascadingInferencer()
+    inferencer = HybridInferencer()
     data = []
     
     for file_path in directory.rglob("*"):
@@ -468,11 +469,11 @@ print(df.groupby("extension").size())
 
 ```python
 from fastapi import FastAPI, HTTPException
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 from pathlib import Path
 
 app = FastAPI()
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 @app.post("/detect/{file_path:path}")
 async def detect_file_type(file_path: str):

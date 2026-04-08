@@ -54,17 +54,31 @@ plugins:
   - search:
       lang: en
 
+extra_css:
+  - stylesheets/extra.css
+
 nav:
   - Home: index.md
-  - Getting Started: getting-started.md
-  - User Guide: user-guide.md
-  - API Reference:
-    - Base Classes: api/base.md
-    - LexicalInferencer: api/lexical.md
-    - MagicInferencer: api/magic.md
-    - MagikaInferencer: api/magika.md
-    - CascadingInferencer: api/cascading.md
-    - Inferencer Map: api/inferencer-map.md
-  - Architecture: architecture.md
-  - Contributing: contributing.md
-  - FAQ: faq.md
+  - Tutorial:
+    - Getting Started: getting-started.md
+  - How-to Guides:
+    - Overview: how-to/index.md
+    - Choose an Inferencer: how-to/choose-an-inferencer.md
+    - Process Files in Bulk: how-to/process-files-in-bulk.md
+    - Extend with a Custom Inferencer: how-to/extend-with-custom-inferencer.md
+    - Examples and Patterns: user-guide.md
+  - Reference:
+    - Overview: reference/index.md
+    - BaseInferencer: api/base_inferencer.md
+    - AutoInferencer: api/auto_inferencer.md
+    - LexicalInferencer: api/lexical_inferencer.md
+    - MagicInferencer: api/magic_inferencer.md
+    - MagikaInferencer: api/magika_inferencer.md
+    - HybridInferencer: api/hybrid_inferencer.md
+    - FAQ and Troubleshooting: faq.md
+  - Explanation:
+    - Overview: explanation/index.md
+    - Inference Strategies: explanation/inference-strategies.md
+    - Architecture: architecture.md
+  - Project:
+    - Contributing: contributing.md

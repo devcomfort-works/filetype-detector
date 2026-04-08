@@ -1,3 +1,5 @@
+"""Magika 기반 추론기 구현체를 제공한다."""
+
 from .base_inferencer import BaseInferencer
 from typing import Union, Tuple
 from pathlib import Path
@@ -5,15 +7,14 @@ from magika import Magika, PredictionMode
 
 
 class MagikaInferencer(BaseInferencer):
-    """Magika inferencer that uses Google's Magika AI to infer file format.
+    """Magika 모델로 파일 형식을 추론한다.
 
-    The class provides a public `infer` method that returns only the file
-    extension, while the heavy‑lifting is performed by the `infer_with_score`
-    method which returns both extension and confidence score.
-
-    Attributes
-    ----------
-    None
+    Notes
+    -----
+    파일 내용을 딥러닝 모델에 입력해 파일 타입과 신뢰도 점수를 함께 예측한다.
+    고정된 규칙 대신 학습된 특징을 바탕으로 판단하므로 텍스트 기반 파일의
+    세부 타입 구분에 특히 강하다.
+    `infer`는 확장자만 반환하고, `infer_with_score`는 확장자와 신뢰도 점수를 함께 반환한다.
     """
 
     def infer_with_score(
@@ -21,31 +22,28 @@ class MagikaInferencer(BaseInferencer):
         file_path: Union[Path, str],
         prediction_mode: PredictionMode = PredictionMode.MEDIUM_CONFIDENCE,
     ) -> Tuple[str, float]:
-        """Core implementation that returns both extension and confidence score.
+        """확장자와 신뢰도 점수를 함께 반환한다.
 
         Parameters
         ----------
         file_path : Union[Path, str]
-            Path to the file to analyze. Can be a string or `Path` object.
+            분석할 파일 경로이다.
         prediction_mode : PredictionMode, optional
-            Magika prediction mode controlling confidence level. Defaults to
-            `PredictionMode.MEDIUM_CONFIDENCE`.
+            Magika의 예측 모드이다.
 
         Returns
         -------
         Tuple[str, float]
-            Tuple of `(extension, confidence_score)` where `extension` includes
-            the leading dot (e.g., `'.pdf'`) and `confidence_score` is a float
-            between 0.0 and 1.0.
+            추론된 확장자와 신뢰도 점수를 함께 반환한다.
 
         Raises
         ------
         FileNotFoundError
-            If the file does not exist.
+            파일이 존재하지 않을 때 발생한다.
         ValueError
-            If the path is not a file.
+            경로가 파일이 아닐 때 발생한다.
         RuntimeError
-            If Magika fails to analyze the file.
+            Magika 분석에 실패했을 때 발생한다.
 
         Examples
         --------
@@ -57,10 +55,7 @@ class MagikaInferencer(BaseInferencer):
         >>> print(extension, score)
         .txt 0.97
         """
-        # Convert to string for Magika compatibility
         file_path_str = str(file_path)
-
-        # Validate file exists and is accessible
         path_obj = Path(file_path_str)
         if not path_obj.exists():
             raise FileNotFoundError(f"File not found: {file_path_str}")
@@ -69,7 +64,6 @@ class MagikaInferencer(BaseInferencer):
 
         magika = Magika(prediction_mode=prediction_mode)
 
-        # Perform content type detection
         try:
             result = magika.identify_path(path=file_path_str)
             extension = result.output.extensions
@@ -81,21 +75,26 @@ class MagikaInferencer(BaseInferencer):
             ) from e
 
     def infer(self, file_path: Union[Path, str]) -> str:
-        """Public API that returns only the file extension.
-
-        This method delegates to `infer_with_score` and discards the
-        confidence score, returning just the extension.
+        """확장자만 반환하는 간단한 추론 인터페이스다.
 
         Parameters
         ----------
         file_path : Union[Path, str]
-            Path to the file to analyze. Can be a string or `Path` object.
+            분석할 파일 경로이다.
 
         Returns
         -------
         str
-            File extension with leading dot (e.g., `'.pdf'`, `'.txt'`).
-            The exact format depends on Magika's output format.
+            앞에 점이 붙은 확장자 문자열이다.
+
+        Raises
+        ------
+        FileNotFoundError
+            파일이 존재하지 않을 때 발생한다.
+        ValueError
+            경로가 파일이 아닐 때 발생한다.
+        RuntimeError
+            Magika 분석에 실패했을 때 발생한다.
 
         Examples
         --------
@@ -104,15 +103,6 @@ class MagikaInferencer(BaseInferencer):
         '.pdf'
         >>> inferencer.infer(Path('notes.txt'))
         '.txt'
-
-        Raises
-        ------
-        FileNotFoundError
-            If the file does not exist.
-        ValueError
-            If the path is not a file.
-        RuntimeError
-            If Magika fails to analyze the file.
         """
         extension, _ = self.infer_with_score(
             file_path, prediction_mode=PredictionMode.MEDIUM_CONFIDENCE

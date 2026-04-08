@@ -201,7 +201,7 @@ except RuntimeError as e:
 - **Memory**: High (~50-100MB for model)
 - **Throughput**: 100-200 files/second
 
-See [User Guide](../user-guide.md#performance) for optimization tips.
+See [Examples and Patterns](../user-guide.md#performance) for optimization tips.
 
 ## When to Use
 
@@ -237,7 +237,7 @@ Magika returns extensions in different formats. The `MagikaInferencer` normalize
 
 - **List format**: `['py', 'pyi']` → Returns first: `.py`
 - **String format**: `'json'` → Returns: `.json`
-- **Empty result**: Falls back to Magic result (in CascadingInferencer)
+- **Empty result**: Falls back to Magic result (in HybridInferencer)
 
 ## Comparison with Other Inferencers
 

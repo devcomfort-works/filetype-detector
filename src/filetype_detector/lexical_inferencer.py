@@ -1,34 +1,31 @@
+"""경로 문자열만으로 확장자를 추론하는 추론기 구현체를 제공한다."""
+
 from .base_inferencer import BaseInferencer
 from typing import Union
 from pathlib import Path
 
 
 class LexicalInferencer(BaseInferencer):
-    """Lexical inferencer that uses the file path to infer the file format.
+    """파일 경로만 보고 확장자를 반환하는 추론기.
 
-    This inferencer extracts the file extension from the provided path using
-    `pathlib.Path`. It is a lightweight, content‑agnostic implementation
-    that fits into the unified inference interface.
-
-    Attributes
-    ----------
-    None
+    Notes
+    -----
+    파일 내용을 읽지 않으므로 가장 빠르지만, 잘못된 확장자를 교정하지는 못한다.
     """
 
     def infer(self, file_path: Union[Path, str]) -> str:
-        """Infer the file format from the file path.
+        """파일 경로에서 확장자를 추출한다.
 
         Parameters
         ----------
         file_path : Union[Path, str]
-            Path to the file. Can be a `Path` object or a string representing
-            the file system path.
+            확장자를 읽을 파일 경로이다.
 
         Returns
         -------
         str
-            File extension in lowercase with leading dot (e.g., `'.txt'`,
-            `'.pdf'`). Returns an empty string if the file has no extension.
+            소문자로 정규화된 확장자 문자열이다.
+            확장자가 없으면 빈 문자열을 반환한다.
 
         Examples
         --------

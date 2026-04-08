@@ -1,6 +1,6 @@
 # Architecture
 
-Understanding the internal architecture and design decisions of `filetype-detector`.
+This page explains the internal structure of `filetype-detector` and the design decisions behind it.
 
 ## Overview
 
@@ -30,7 +30,7 @@ class BaseInferencer(ABC):
 1. **LexicalInferencer**: Path-based extraction
 2. **MagicInferencer**: Content-based using libmagic
 3. **MagikaInferencer**: AI-powered detection
-4. **CascadingInferencer**: Hybrid two-stage approach
+4. **HybridInferencer**: Hybrid two-stage approach
 
 ## Design Patterns
 
@@ -40,13 +40,13 @@ The library implements the Strategy pattern, allowing clients to choose inferenc
 
 ```python
 # Strategy selection
-strategy = FILE_FORMAT_INFERENCER_MAP[method]
-result = strategy(file_path)
+strategy = AutoInferencer(backend=backend)
+result = strategy.infer(file_path)
 ```
 
 ### Template Method Pattern
 
-`CascadingInferencer` uses a template method approach:
+`HybridInferencer` uses a template method approach:
 1. Common validation (file existence)
 2. Algorithm-specific detection
 3. Result formatting
@@ -60,8 +60,8 @@ filetype_detector/
 ├── lexical_inferencer.py   # Path-based inference
 ├── magic_inferencer.py     # libmagic-based inference
 ├── magika_inferencer.py    # AI-powered inference
-├── mixture_inferencer.py   # Cascading inference
-└── inferencer.py           # Type definitions and map
+├── hybrid_inferencer.py   # Hybrid inference
+└── auto_inferencer.py      # Unified backend selector
 ```
 
 ## Data Flow
@@ -86,7 +86,7 @@ File Path → Validation → Magika.identify_path() →
 result.output.extensions → Format → Extension
 ```
 
-### CascadingInferencer
+### HybridInferencer
 
 ```
 File Path → Validation → Magic Detection → 
@@ -110,11 +110,12 @@ class CustomInferencer(BaseInferencer):
         return ".custom"
 ```
 
-2. **Add to Map** (optional):
+2. **Register in `AutoInferencer`** (optional):
 ```python
-from filetype_detector.inferencer import FILE_FORMAT_INFERENCER_MAP
+from .my_inferencer import CustomInferencer
 
-FILE_FORMAT_INFERENCER_MAP["custom"] = lambda path: CustomInferencer().infer(path)
+BackendType = Literal["lexical", "magic", "magika", "hybrid", "custom"]
+_BACKEND_MAP["custom"] = CustomInferencer
 ```
 
 ## Error Handling Strategy
@@ -143,7 +144,7 @@ if detection_fails:
 The library uses Python's type system for safety:
 
 ```python
-InferencerType = Union[Literal["magika", "magic"], None]
+BackendType = Literal["lexical", "magic", "magika", "hybrid"]
 ```
 
 This ensures:
@@ -178,9 +179,9 @@ for file in files:
     extension = inferencer.infer(file)
 ```
 
-### Cascading Optimization
+### Hybrid Optimization
 
-`CascadingInferencer` optimizes by:
+`HybridInferencer` optimizes by:
 - Only loading Magika model once
 - Skipping Magika for binary files
 - Caching Magic results per file
@@ -195,7 +196,7 @@ tests/
 ├── test_lexical_inferencer.py
 ├── test_magic_inferencer.py
 ├── test_magika_inferencer.py
-└── test_cascading_inferencer.py
+└── test_hybrid_inferencer.py
 ```
 
 **Key Testing Patterns:**
@@ -209,7 +210,7 @@ tests/
 The architecture supports future enhancements:
 
 1. **New Inferencers**: Easy to add via `BaseInferencer`
-2. **New Strategies**: Can add to `FILE_FORMAT_INFERENCER_MAP`
+2. **New Strategies**: Can add new backends to `AutoInferencer`
 3. **Configuration**: Type system supports config-based selection
 4. **Caching**: Can add caching layer without changing interfaces
 

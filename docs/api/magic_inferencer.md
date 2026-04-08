@@ -106,7 +106,7 @@ except RuntimeError as e:
 - **Memory**: Low
 - **Throughput**: 200-500 files/second
 
-See [User Guide](../user-guide.md#performance) for optimization tips.
+See [Examples and Patterns](../user-guide.md#performance) for optimization tips.
 
 ## When to Use
 

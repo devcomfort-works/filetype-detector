@@ -1,6 +1,7 @@
 # Contributing
 
-Thank you for your interest in contributing to `filetype-detector`! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to `filetype-detector`.
+This guide covers the development workflow, project conventions, and documentation expectations for contributors.
 
 ## Development Setup
 
@@ -28,7 +29,7 @@ Or with pip:
 pip install -e ".[dev]"
 ```
 
-3. **Install system dependencies** (for MagicInferencer and CascadingInferencer):
+3. **Install system dependencies** (for MagicInferencer and HybridInferencer):
 
 **Ubuntu/Debian:**
 ```bash
@@ -144,7 +145,7 @@ def infer(self, file_path: Union[Path, str]) -> str:
 
 - Classes: `PascalCase` (e.g., `MagicInferencer`)
 - Functions/Methods: `snake_case` (e.g., `infer`)
-- Constants: `UPPER_SNAKE_CASE` (e.g., `FILE_FORMAT_INFERENCER_MAP`)
+- Constants and registries: `UPPER_SNAKE_CASE` (private registries may use a leading underscore, e.g., `_BACKEND_MAP`)
 
 ## Adding New Features
 
@@ -160,17 +161,18 @@ class MyInferencer(BaseInferencer):
         return ".ext"
 ```
 
-2. **Add to inferencer map** (optional):
+2. **Register in `auto_inferencer.py`** (optional):
 ```python
-# In inferencer.py
+# In auto_inferencer.py
 from .my_inferencer import MyInferencer
 
-FILE_FORMAT_INFERENCER_MAP["my_inferencer"] = lambda path: MyInferencer().infer(path)
+BackendType = Literal["lexical", "magic", "magika", "hybrid", "my_inferencer"]
+_BACKEND_MAP["my_inferencer"] = MyInferencer
 ```
 
 3. **Update type definitions**:
 ```python
-InferencerType = Union[Literal["magika", "magic", "my_inferencer"], None]
+BackendType = Literal["lexical", "magic", "magika", "hybrid", "my_inferencer"]
 ```
 
 4. **Write tests**:

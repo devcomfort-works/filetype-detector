@@ -1,48 +1,134 @@
+<div class="hero" markdown="1">
+<p class="hero__eyebrow">Documentation</p>
+
 # filetype-detector
 
-A Python library for detecting file types using multiple inference strategies, including path-based extraction, magic number detection, and AI-powered content analysis.
+<p class="hero__lead">Detect file types from paths, file signatures, or model-based analysis with one Python library and one consistent interface.</p>
 
-## Features
+<div class="hero__meta">
+	<span class="hero__pill">Hybrid by default</span>
+	<span class="hero__pill">Single `AutoInferencer` entry point</span>
+	<span class="hero__pill">Reference + guides + explanations</span>
+</div>
 
-- **Multiple Inference Methods**: Choose from lexical, magic-based, AI-powered, or cascading inference strategies
-- **Type-Safe API**: Type hints and type-safe inference method selection  
-- **Flexible Input**: Supports both `Path` objects and string paths
-- **Performance Optimized**: Cascading inferencer intelligently combines methods for optimal performance
-- **Well-Tested**: Comprehensive test suite with logging support
-- **Extensible**: Base class architecture for custom inferencer implementations
+<div class="hero__actions" markdown="1">
+[Start with the tutorial](getting-started.md){ .md-button .md-button--primary }
+[Choose an inferencer](how-to/choose-an-inferencer.md){ .md-button }
+[Browse the API reference](reference/index.md){ .md-button }
+</div>
+</div>
+
+## Start Here
+
+<div class="grid cards" markdown="1">
+
+- __Getting Started__
+
+	---
+
+	Install the package, check system dependencies, and run the first successful detection.
+
+	[Open the tutorial](getting-started.md)
+
+- __Choose an Inferencer__
+
+	---
+
+	Pick the right backend for trusted extensions, content validation, text precision, or mixed workloads.
+
+	[Open the guide](how-to/choose-an-inferencer.md)
+
+- __Reference__
+
+	---
+
+	Look up exact API behavior for AutoInferencer, BaseInferencer, and each concrete inferencer.
+
+	[Open reference overview](reference/index.md)
+
+- __Explanation__
+
+	---
+
+	Understand the trade-offs behind lexical, magic, magika, and hybrid detection.
+
+	[Open explanation overview](explanation/index.md)
+
+</div>
 
 ## Quick Start
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.auto_inferencer import AutoInferencer
 
-# Recommended: Use CascadingInferencer for best balance
-inferencer = CascadingInferencer()
-extension = inferencer.infer("document.pdf")  # Returns: '.pdf'
+inferencer = AutoInferencer(backend="hybrid")
+extension = inferencer.infer("document.pdf")
 ```
 
-## Installation
+## Quick Decision Guide
 
-```bash
-pip install filetype-detector
-```
+<div class="grid cards compact tight" markdown="1">
 
-See [Getting Started](getting-started.md) for detailed installation instructions including system dependencies.
+- __Need the fastest possible answer?__
 
-## Documentation
+	---
 
-- **[Getting Started](getting-started.md)** - Installation and basic usage
-- **[User Guide](user-guide.md)** - Comprehensive usage guide with examples and performance tips
-- **[API Reference](api/base.md)** - Complete API documentation
+	Start with `LexicalInferencer`.
+
+- __Need content-based validation?__
+
+	---
+
+	Start with `MagicInferencer`.
+
+- __Need text precision or confidence scores?__
+
+	---
+
+	Start with `MagikaInferencer`.
+
+- __Need one strong default for mixed files?__
+
+	---
+
+	Start with `AutoInferencer(backend="hybrid")`.
+
+</div>
+
+## Common Tasks
+
+<div class="grid cards compact tight" markdown="1">
+
+- __Choose the right backend__
+
+	---
+
+	[Choose an Inferencer](how-to/choose-an-inferencer.md)
+
+- __Scan many files__
+
+	---
+
+	[Process Files in Bulk](how-to/process-files-in-bulk.md)
+
+- __Add project-specific detection__
+
+	---
+
+	[Extend with a Custom Inferencer](how-to/extend-with-custom-inferencer.md)
+
+- __Reuse working snippets__
+
+	---
+
+	[Examples and Patterns](user-guide.md)
+
+</div>
 
 ## Requirements
 
 - Python >= 3.8
-- python-magic >= 0.4.27 (for MagicInferencer and CascadingInferencer)
-- magika >= 1.0.1 (for MagikaInferencer and CascadingInferencer)
+- python-magic >= 0.4.27 for MagicInferencer and HybridInferencer
+- magika >= 1.0.1 for MagikaInferencer and HybridInferencer
 
-See [Getting Started](getting-started.md#system-requirements) for system library installation instructions.
-
-## License
-
-This project is open source.
+See [Getting Started](getting-started.md#system-requirements) for platform-specific system library installation instructions.

@@ -1,14 +1,14 @@
-# CascadingInferencer
+# HybridInferencer
 
 Smart two-stage inference that combines Magic and Magika for optimal performance and accuracy.
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 ```
 
 ## Overview
 
-The `CascadingInferencer` implements an intelligent two-stage inference strategy:
+The `HybridInferencer` implements an intelligent two-stage inference strategy:
 
 1. **Stage 1**: Uses Magic (libmagic) to detect MIME type for all files
 2. **Stage 2**: If detected as a text file (`text/*` MIME type), uses Magika for detailed type detection
@@ -19,15 +19,15 @@ This approach optimizes performance by only using Magika (computationally expens
 ## Class Definition
 
 ```python
-class CascadingInferencer(BaseInferencer):
-    """Cascading inferencer that combines magic and magika inference methods."""
+class HybridInferencer(BaseInferencer):
+    """Hybrid inferencer that combines Magic and Magika."""
 ```
 
 ## Methods
 
 ### `infer(file_path: Union[Path, str]) -> str`
 
-Infer the file format using a cascading two-stage approach.
+Infer the file format using a hybrid two-stage approach.
 
 **Parameters:**
 
@@ -46,10 +46,10 @@ Infer the file format using a cascading two-stage approach.
 **Examples:**
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 from pathlib import Path
 
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 # Text file - uses Magic then Magika
 extension = inferencer.infer('script.py')  # Returns: '.py'
@@ -87,9 +87,9 @@ Is text/* MIME type?
 ### Basic Usage
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 # Text file - automatically uses Magika
 extension = inferencer.infer("script.py")  # Returns: '.py'
@@ -101,7 +101,7 @@ extension = inferencer.infer("document.pdf")  # Returns: '.pdf'
 ### Mixed File Types
 
 ```python
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 files = [
     "document.pdf",   # Binary - Magic only
@@ -118,9 +118,9 @@ for file_path in files:
 ### Error Handling
 
 ```python
-from filetype_detector.mixture_inferencer import CascadingInferencer
+from filetype_detector.hybrid_inferencer import HybridInferencer
 
-inferencer = CascadingInferencer()
+inferencer = HybridInferencer()
 
 try:
     extension = inferencer.infer("nonexistent.pdf")
@@ -178,7 +178,7 @@ extension = mimetypes.guess_extension(mime_type)
 - **Binary files**: ~1-5ms per file (Magic only)
 - **Throughput**: 150-400 files/second (depends on text/binary ratio)
 
-See [User Guide](../user-guide.md#performance) for detailed optimization strategies.
+See [Examples and Patterns](../user-guide.md#performance) for detailed optimization strategies.
 
 ## When to Use
 
@@ -200,7 +200,7 @@ See [User Guide](../user-guide.md#performance) for detailed optimization strateg
 
 ## Comparison
 
-| Aspect               | CascadingInferencer     | MagicInferencer | MagikaInferencer |
+| Aspect               | HybridInferencer     | MagicInferencer | MagikaInferencer |
 | -------------------- | ----------------------- | --------------- | ---------------- |
 | Text file accuracy   | Highest (via Magika)    | Medium          | Highest          |
 | Binary file accuracy | High (via Magic)        | High            | High             |
@@ -219,7 +219,7 @@ See [User Guide](../user-guide.md#performance) for detailed optimization strateg
 
 ## System Requirements
 
-`CascadingInferencer` requires both `libmagic` (system library) and `magika` (Python package). See [Getting Started](../getting-started.md#system-requirements) for installation instructions.
+`HybridInferencer` requires both `libmagic` (system library) and `magika` (Python package). See [Getting Started](../getting-started.md#system-requirements) for installation instructions.
 
 ## Limitations
 
@@ -229,7 +229,7 @@ See [User Guide](../user-guide.md#performance) for detailed optimization strateg
 
 ## Best Practices
 
-1. **Reuse instance**: Create one CascadingInferencer and reuse it
+1. **Reuse instance**: Create one HybridInferencer and reuse it
 2. **Handle exceptions**: Always wrap in try-except blocks
 3. **Monitor performance**: Profile if processing very large batches
 4. **Consider alternatives**: For pure binary/text workflows, consider specialized inferencers
