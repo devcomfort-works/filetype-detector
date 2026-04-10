@@ -32,6 +32,8 @@ cryptography==46.0.3
     # via secretstorage
 docutils==0.22.3
     # via readme-renderer
+filetype==1.2.0
+    # via filetype-detector
 flatbuffers==25.9.23
     # via onnxruntime
 ghp-import==2.1.0

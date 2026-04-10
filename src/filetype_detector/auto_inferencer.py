@@ -59,7 +59,7 @@ class AutoInferencer(BaseInferencer):
     '.py'
     """
 
-    def __init__(self, backend: BackendType = "lexical") -> None:
+    def __init__(self, backend: BackendType = "hybrid") -> None:
         self._inferencer: BaseInferencer = _BACKEND_MAP[backend]()
 
     def infer(self, file_path: Union[Path, str]) -> str:
