@@ -86,3 +86,31 @@ class HybridInferencer(BaseInferencer):
                 pass
 
         return FileType.from_mimetype(mime_type)
+
+
+if __name__ == "__main__":
+    from pathlib import Path
+
+    print("=== HybridInferencer Demo ===\n")
+
+    # fixtures 디렉토리 경로
+    fixtures_dir = Path(__file__).parent.parent.parent / "tests" / "fixtures"
+
+    # 사용 가능한 샘플 파일들
+    sample_files = sorted(fixtures_dir.glob("sample.*"))
+
+    if not sample_files:
+        print(f"Error: No sample files found in {fixtures_dir}")
+        exit(1)
+
+    inferencer = HybridInferencer()
+
+    print("--- infer() 메서드: FileType 반환 ---")
+    for file_path in sample_files:
+        try:
+            ft = inferencer.infer(file_path)
+            print(f"{file_path.name}")
+            print(f"  extensions: {ft.extensions}")
+            print(f"  mime_types: {ft.mime_types}\n")
+        except Exception as e:
+            print(f"{file_path.name}: Error - {e}\n")
