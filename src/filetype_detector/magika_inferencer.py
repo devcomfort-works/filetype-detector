@@ -77,9 +77,7 @@ class MagikaInferencer(BaseInferencer):
             score = result.prediction.score
             return (extension, score)
         except Exception as e:
-            raise RuntimeError(
-                f"Failed to analyze file {path_obj}: {str(e)}"
-            ) from e
+            raise RuntimeError(f"Failed to analyze file {path_obj}: {str(e)}") from e
 
     def infer(self, file_path: Union[Path, str]) -> FileType:
         """Magika 모델로 파일 타입을 추론하여 FileType을 반환한다.
@@ -145,9 +143,7 @@ class MagikaInferencer(BaseInferencer):
 
             return FileType(extensions=tuple(normalized_exts), mime_types=mime_types)
         except Exception as e:
-            raise RuntimeError(
-                f"Failed to analyze file {path_obj}: {str(e)}"
-            ) from e
+            raise RuntimeError(f"Failed to analyze file {path_obj}: {str(e)}") from e
 
 
 if __name__ == "__main__":

@@ -17,9 +17,7 @@ class TestMagikaInferencer:
         logger.debug(f"Testing string path inference with file: {sample_txt}")
         inferencer = MagikaInferencer()
         ft = inferencer.infer(str(sample_txt))
-        logger.success(
-            f"String path test - File: {sample_txt.name}, FileType: {ft}"
-        )
+        logger.success(f"String path test - File: {sample_txt.name}, FileType: {ft}")
         assert isinstance(ft, FileType)
         assert isinstance(ft.extensions, tuple)
         assert len(ft.extensions) > 0
@@ -29,18 +27,14 @@ class TestMagikaInferencer:
         logger.debug(f"Testing Path object inference with file: {sample_txt}")
         inferencer = MagikaInferencer()
         ft = inferencer.infer(sample_txt)
-        logger.success(
-            f"Path object test - File: {sample_txt.name}, FileType: {ft}"
-        )
+        logger.success(f"Path object test - File: {sample_txt.name}, FileType: {ft}")
         assert isinstance(ft, FileType)
         assert isinstance(ft.extensions, tuple)
         assert len(ft.extensions) > 0
 
     def test_infer_with_score_returns_tuple(self, sample_txt):
         """Test that infer_with_score returns a tuple of (extension, score)."""
-        logger.debug(
-            f"Testing infer_with_score returns tuple for file: {sample_txt}"
-        )
+        logger.debug(f"Testing infer_with_score returns tuple for file: {sample_txt}")
         inferencer = MagikaInferencer()
         extension, score = inferencer.infer_with_score(sample_txt)
         logger.success(
@@ -57,8 +51,8 @@ class TestMagikaInferencer:
         ft = inferencer.infer(sample_txt)
         logger.success(f"FileType returned: {ft}")
         assert isinstance(ft, FileType)
-        assert hasattr(ft, 'extensions')
-        assert hasattr(ft, 'mime_types')
+        assert hasattr(ft, "extensions")
+        assert hasattr(ft, "mime_types")
 
     def test_infer_file_not_found_error(self):
         """Test that FileNotFoundError is raised for non-existent files."""
@@ -145,9 +139,7 @@ class TestMagikaInferencer:
         assert isinstance(score2, float)
 
     @patch("filetype_detector.magika_inferencer.Magika")
-    def test_infer_with_score_successful_flow(
-        self, mock_magika_class, sample_txt
-    ):
+    def test_infer_with_score_successful_flow(self, mock_magika_class, sample_txt):
         """Test successful inference flow with mocked Magika."""
         logger.debug("Testing successful inference flow with mocked Magika")
         mock_magika = MagicMock()
@@ -187,7 +179,11 @@ class TestMagikaInferencer:
         ft = inferencer.infer(sample_json)
         logger.success(f"JSON file test - FileType: {ft}")
         assert isinstance(ft, FileType)
-        assert ".json" in ft.extensions or ".jsonl" in ft.extensions or ".jsonld" in ft.extensions
+        assert (
+            ".json" in ft.extensions
+            or ".jsonl" in ft.extensions
+            or ".jsonld" in ft.extensions
+        )
 
     def test_filetype_has_multiple_extensions(self, sample_json):
         """Test that FileType can contain multiple extensions."""
