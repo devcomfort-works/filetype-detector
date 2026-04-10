@@ -54,6 +54,8 @@ dev-dependencies = [
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.23",
     "pymdown-extensions>=10.16.1",
+    "tabulate>=0.10.0",
+    "wcwidth>=0.6.0",
 ]
 
 [tool.hatch.metadata]

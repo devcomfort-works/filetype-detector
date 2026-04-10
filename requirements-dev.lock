@@ -32,8 +32,6 @@ cryptography==46.0.3
     # via secretstorage
 docutils==0.22.3
     # via readme-renderer
-filetype==1.2.0
-    # via filetype-detector
 flatbuffers==25.9.23
     # via onnxruntime
 ghp-import==2.1.0
@@ -159,9 +157,11 @@ six==1.17.0
     # via python-dateutil
 sympy==1.14.0
     # via onnxruntime
+tabulate==0.10.0
 twine==6.2.0
 urllib3==2.5.0
     # via requests
     # via twine
 watchdog==6.0.0
     # via mkdocs
+wcwidth==0.6.0
