@@ -10,6 +10,7 @@ from .file_type import FileType
 from typing import Union
 from pathlib import Path
 import magic
+import mimetypes
 from magika import Magika, PredictionMode
 
 

@@ -18,9 +18,9 @@ class TestLexicalInferencer:
         result2 = inferencer.infer("data.txt")
         result3 = inferencer.infer("script.py")
         logger.success(f"String path test - Results: {result1}, {result2}, {result3}")
-        assert result1 == ".pdf"
-        assert result2 == ".txt"
-        assert result3 == ".py"
+        assert ".pdf" in result1.extensions
+        assert ".txt" in result2.extensions
+        assert ".py" in result3.extensions
 
     def test_infer_with_path_object(self):
         """Test inferring extension from Path object."""
@@ -29,18 +29,18 @@ class TestLexicalInferencer:
         result1 = inferencer.infer(Path("document.pdf"))
         result2 = inferencer.infer(Path("data.txt"))
         logger.success(f"Path object test - Results: {result1}, {result2}")
-        assert result1 == ".pdf"
-        assert result2 == ".txt"
+        assert ".pdf" in result1.extensions
+        assert ".txt" in result2.extensions
 
     def test_infer_no_extension(self):
         """Test inferring extension when file has no extension."""
         logger.debug("Testing files without extension")
         inferencer = LexicalInferencer()
-        result1 = inferencer.infer("no_extension")
-        result2 = inferencer.infer(Path("file_without_ext"))
-        logger.info(f"No extension test - Results: '{result1}', '{result2}'")
-        assert result1 == ""
-        assert result2 == ""
+        with pytest.raises(ValueError, match="파일 경로에 확장자가 없습니다"):
+            inferencer.infer("no_extension")
+        with pytest.raises(ValueError, match="파일 경로에 확장자가 없습니다"):
+            inferencer.infer(Path("file_without_ext"))
+        logger.success("No extension test passed")
 
     def test_infer_case_insensitive(self):
         """Test that extension is returned in lowercase."""
@@ -51,12 +51,12 @@ class TestLexicalInferencer:
             ("document.TXT", ".txt"),
             ("SCRIPT.PY", ".py"),
         ]
-        for input_path, expected in test_cases:
+        for input_path, expected_ext in test_cases:
             result = inferencer.infer(input_path)
             logger.debug(
-                f"Input: {input_path} -> Result: {result}, Expected: {expected}"
+                f"Input: {input_path} -> Result: {result}, Expected ext: {expected_ext}"
             )
-            assert result == expected
+            assert expected_ext in result.extensions
         logger.success("Case-insensitive test passed")
 
     def test_infer_multiple_dots(self):
@@ -66,8 +66,8 @@ class TestLexicalInferencer:
         result1 = inferencer.infer("file.tar.gz")
         result2 = inferencer.infer("backup.2024.01.01.txt")
         logger.info(f"Multiple dots test - Results: {result1}, {result2}")
-        assert result1 == ".gz"
-        assert result2 == ".txt"
+        assert ".gz" in result1.extensions
+        assert ".txt" in result2.extensions
 
     def test_infer_with_path_separators(self):
         """Test inferring extension from path with directory separators."""
@@ -76,25 +76,25 @@ class TestLexicalInferencer:
         result1 = inferencer.infer("path/to/file.pdf")
         result2 = inferencer.infer(Path("path/to/file.txt"))
         logger.success(f"Path separators test - Results: {result1}, {result2}")
-        assert result1 == ".pdf"
-        assert result2 == ".txt"
+        assert ".pdf" in result1.extensions
+        assert ".txt" in result2.extensions
 
     def test_infer_empty_string(self):
         """Test inferring extension from empty string."""
         logger.warning("Testing empty string input")
         inferencer = LexicalInferencer()
-        result1 = inferencer.infer("")
-        result2 = inferencer.infer(Path(""))
-        logger.info(f"Empty string test - Results: '{result1}', '{result2}'")
-        assert result1 == ""
-        assert result2 == ""
+        with pytest.raises(ValueError, match="파일 경로에 확장자가 없습니다"):
+            inferencer.infer("")
+        with pytest.raises(ValueError, match="파일 경로에 확장자가 없습니다"):
+            inferencer.infer(Path(""))
+        logger.success("Empty string test passed")
 
     def test_infer_dot_only(self):
         """Test inferring extension when filename starts with dot."""
         logger.debug("Testing filenames starting with dot")
         inferencer = LexicalInferencer()
-        result1 = inferencer.infer(".hidden")
-        result2 = inferencer.infer(".gitignore")
-        logger.info(f"Dot-only test - Results: '{result1}', '{result2}'")
-        assert result1 == ""
-        assert result2 == ""
+        with pytest.raises(ValueError, match="파일 경로에 확장자가 없습니다"):
+            inferencer.infer(".hidden")
+        with pytest.raises(ValueError, match="파일 경로에 확장자가 없습니다"):
+            inferencer.infer(".gitignore")
+        logger.success("Dot-only test passed")

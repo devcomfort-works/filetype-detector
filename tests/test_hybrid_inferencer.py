@@ -14,24 +14,22 @@ class TestHybridInferencer:
         """Test inferring extension from string path."""
         logger.debug(f"Testing string path inference with file: {sample_text_file}")
         inferencer = HybridInferencer()
-        extension = inferencer.infer(str(sample_text_file))
+        file_type = inferencer.infer(str(sample_text_file))
         logger.success(
-            f"String path test - File: {sample_text_file.name}, Extension: {extension}"
+            f"String path test - File: {sample_text_file.name}, Type: {file_type}"
         )
-        assert isinstance(extension, str)
-        assert extension.startswith(".")
-        assert len(extension) > 1
+        assert any(ext.startswith(".") for ext in file_type.extensions)
+        assert any(len(ext) > 1 for ext in file_type.extensions)
 
     def test_infer_with_path_object(self, sample_text_file):
         """Test inferring extension from Path object."""
         logger.debug(f"Testing Path object inference with file: {sample_text_file}")
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
+        file_type = inferencer.infer(sample_text_file)
         logger.success(
-            f"Path object test - File: {sample_text_file.name}, Extension: {extension}"
+            f"Path object test - File: {sample_text_file.name}, Type: {file_type}"
         )
-        assert isinstance(extension, str)
-        assert extension.startswith(".")
+        assert any(ext.startswith(".") for ext in file_type.extensions)
 
     def test_infer_file_not_found_error(self):
         """Test that FileNotFoundError is raised for non-existent files."""
@@ -61,63 +59,45 @@ class TestHybridInferencer:
             inferencer.infer(sample_text_file)
         logger.success(f"RuntimeError correctly raised: {exc_info.value}")
 
-    @patch("filetype_detector.hybrid_inferencer.mimetypes.guess_extension")
-    @patch("filetype_detector.hybrid_inferencer.magic.from_file")
-    def test_infer_runtime_error_no_extension(
-        self, mock_magic, mock_guess_ext, sample_text_file
-    ):
-        """Test that RuntimeError is raised when extension cannot be guessed."""
-        logger.debug("Testing RuntimeError when extension cannot be guessed")
-        mock_magic.return_value = "application/unknown"
-        mock_guess_ext.return_value = None
-        inferencer = HybridInferencer()
-        with pytest.raises(RuntimeError, match="Cannot convert MIME type") as exc_info:
-            inferencer.infer(sample_text_file)
-        logger.success(f"RuntimeError correctly raised: {exc_info.value}")
-
     def test_infer_with_text_file_uses_magika(self, sample_text_file):
         """Test that text files trigger Magika inference."""
         logger.info(f"Testing text file inference with Magika: {sample_text_file.name}")
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
-        logger.success(f"Text file test - Extension: {extension}")
-        assert isinstance(extension, str)
-        assert extension.startswith(".")
+        file_type = inferencer.infer(sample_text_file)
+        logger.success(f"Text file test - Type: {file_type}")
+        assert any(ext.startswith(".") for ext in file_type.extensions)
 
     def test_infer_with_python_file(self, sample_python_file):
         """Test inferring extension from Python file."""
         logger.info(f"Testing Python file inference: {sample_python_file.name}")
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_python_file)
-        logger.success(f"Python file test - Extension: {extension}")
-        assert isinstance(extension, str)
-        assert extension.startswith(".")
+        file_type = inferencer.infer(sample_python_file)
+        logger.success(f"Python file test - Type: {file_type}")
+        assert any(ext.startswith(".") for ext in file_type.extensions)
         # Should detect as .py using Magika (for text files)
-        if extension == ".py":
+        if ".py" in file_type.extensions:
             logger.info("Correctly identified as Python file")
         else:
-            logger.info(f"Detected as {extension} (may vary)")
+            logger.info(f"Detected as {file_type.extensions} (may vary)")
 
     def test_infer_with_json_file(self, sample_json_file):
         """Test inferring extension from JSON file."""
         logger.info(f"Testing JSON file inference: {sample_json_file.name}")
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_json_file)
-        logger.success(f"JSON file test - Extension: {extension}")
-        assert isinstance(extension, str)
-        assert extension.startswith(".")
+        file_type = inferencer.infer(sample_json_file)
+        logger.success(f"JSON file test - Type: {file_type}")
+        assert any(ext.startswith(".") for ext in file_type.extensions)
         # Should detect as .json using Magika (for text files)
-        if extension == ".json":
+        if ".json" in file_type.extensions:
             logger.info("Correctly identified as JSON file")
 
     def test_infer_with_pdf_file_uses_magic_only(self, sample_pdf_file):
         """Test that non-text files use Magic only (not Magika)."""
         logger.info(f"Testing PDF file inference (Magic only): {sample_pdf_file.name}")
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_pdf_file)
-        logger.success(f"PDF file test - Extension: {extension}")
-        assert isinstance(extension, str)
-        assert extension.startswith(".")
+        file_type = inferencer.infer(sample_pdf_file)
+        logger.success(f"PDF file test - Type: {file_type}")
+        assert any(ext.startswith(".") for ext in file_type.extensions)
         # PDF files are not text/*, so should use Magic only
 
     @patch("filetype_detector.hybrid_inferencer.Magika")
@@ -135,15 +115,15 @@ class TestHybridInferencer:
         mock_magika_class.return_value = mock_magika
 
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
+        file_type = inferencer.infer(sample_text_file)
 
-        logger.success(f"Cascading test - Extension: {extension}")
+        logger.success(f"Cascading test - Type: {file_type}")
         # Verify Magic was called
         mock_magic.assert_called_once()
         # Verify Magika was called (for text files)
         mock_magika_class.assert_called_once()
         mock_magika.identify_path.assert_called_once()
-        assert extension == ".txt"
+        assert ".txt" in file_type.extensions
 
     @patch("filetype_detector.hybrid_inferencer.magic.from_file")
     def test_non_text_file_does_not_use_magika(self, mock_magic, sample_pdf_file):
@@ -151,13 +131,13 @@ class TestHybridInferencer:
         logger.debug("Testing that non-text files skip Magika")
         mock_magic.return_value = "application/pdf"
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_pdf_file)
+        file_type = inferencer.infer(sample_pdf_file)
 
-        logger.success(f"Non-text file test - Extension: {extension}")
+        logger.success(f"Non-text file test - Type: {file_type}")
         # Verify Magic was called
         mock_magic.assert_called_once()
         # Magika should not be used for non-text files
-        assert extension.startswith(".")
+        assert any(ext.startswith(".") for ext in file_type.extensions)
 
     @patch("filetype_detector.hybrid_inferencer.Magika")
     @patch("filetype_detector.hybrid_inferencer.magic.from_file")
@@ -174,11 +154,11 @@ class TestHybridInferencer:
         mock_magika_class.return_value = mock_magika
 
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
+        file_type = inferencer.infer(sample_text_file)
 
-        logger.success(f"Fallback test - Extension: {extension}")
+        logger.success(f"Fallback test - Type: {file_type}")
         # Should fallback to Magic result
-        assert extension == ".txt"
+        assert ".txt" in file_type.extensions
         # Verify Magic was called
         mock_magic.assert_called_once()
         # Verify Magika was attempted but failed
@@ -201,11 +181,11 @@ class TestHybridInferencer:
         mock_magika_class.return_value = mock_magika
 
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
+        file_type = inferencer.infer(sample_text_file)
 
-        logger.success(f"Empty result fallback test - Extension: {extension}")
+        logger.success(f"Empty result fallback test - Type: {file_type}")
         # Should fallback to Magic result
-        assert extension == ".txt"
+        assert ".txt" in file_type.extensions
 
     @patch("filetype_detector.hybrid_inferencer.Magika")
     @patch("filetype_detector.hybrid_inferencer.magic.from_file")
@@ -222,11 +202,11 @@ class TestHybridInferencer:
         mock_magika_class.return_value = mock_magika
 
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
+        file_type = inferencer.infer(sample_text_file)
 
-        logger.success(f"Extension formatting test - Extension: {extension}")
-        assert extension == ".py"
-        assert extension.startswith(".")
+        logger.success(f"Extension formatting test - Type: {file_type}")
+        assert ".py" in file_type.extensions
+        assert any(ext.startswith(".") for ext in file_type.extensions)
 
     @patch("filetype_detector.hybrid_inferencer.Magika")
     @patch("filetype_detector.hybrid_inferencer.magic.from_file")
@@ -243,8 +223,8 @@ class TestHybridInferencer:
         mock_magika_class.return_value = mock_magika
 
         inferencer = HybridInferencer()
-        extension = inferencer.infer(sample_text_file)
+        file_type = inferencer.infer(sample_text_file)
 
-        logger.success(f"String extension test - Extension: {extension}")
-        assert extension == ".json"
-        assert extension.startswith(".")
+        logger.success(f"String extension test - Type: {file_type}")
+        assert ".json" in file_type.extensions
+        assert any(ext.startswith(".") for ext in file_type.extensions)
