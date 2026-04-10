@@ -30,6 +30,54 @@ def pytest_runtest_setup(item):
     logger.info(f"🧪 Starting test: {item.name}")
 
 
+@pytest.fixture
+def fixtures_dir():
+    """Return path to test fixtures directory."""
+    return Path(__file__).parent / "fixtures"
+
+
+@pytest.fixture
+def sample_pdf(fixtures_dir):
+    """Return path to sample PDF file."""
+    return fixtures_dir / "sample.pdf"
+
+
+@pytest.fixture
+def sample_json(fixtures_dir):
+    """Return path to sample JSON file."""
+    return fixtures_dir / "sample.json"
+
+
+@pytest.fixture
+def sample_txt(fixtures_dir):
+    """Return path to sample text file."""
+    return fixtures_dir / "sample.txt"
+
+
+@pytest.fixture
+def sample_md(fixtures_dir):
+    """Return path to sample Markdown file."""
+    return fixtures_dir / "sample.md"
+
+
+@pytest.fixture
+def sample_py(fixtures_dir):
+    """Return path to sample Python file."""
+    return fixtures_dir / "sample.py"
+
+
+@pytest.fixture
+def sample_xml(fixtures_dir):
+    """Return path to sample XML file."""
+    return fixtures_dir / "sample.xml"
+
+
+@pytest.fixture
+def sample_csv(fixtures_dir):
+    """Return path to sample CSV file."""
+    return fixtures_dir / "sample.csv"
+
+
 def pytest_runtest_teardown(item, nextitem):
     """Log after each test completes."""
     logger.success(f"✅ Completed test: {item.name}")

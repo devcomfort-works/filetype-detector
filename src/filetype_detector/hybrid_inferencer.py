@@ -6,10 +6,10 @@ Magika를 추가로 사용한다. 바이너리 파일에서는 처리 비용을 
 """
 
 from .base_inferencer import BaseInferencer
+from .file_type import FileType
 from typing import Union
 from pathlib import Path
 import magic
-import mimetypes
 from magika import Magika, PredictionMode
 
 
@@ -22,7 +22,7 @@ class HybridInferencer(BaseInferencer):
     한 번 더 분석한다. 따라서 바이너리 파일에는 빠르고, 텍스트 파일에는 더 정밀하다.
     """
 
-    def infer(self, file_path: Union[Path, str]) -> str:
+    def infer(self, file_path: Union[Path, str]) -> FileType:
         """하이브리드 전략으로 파일 확장자를 추론한다.
 
         Parameters
@@ -32,9 +32,9 @@ class HybridInferencer(BaseInferencer):
 
         Returns
         -------
-        str
-            앞에 점이 붙은 확장자 문자열이다.
-            텍스트 파일은 가능하면 Magika가 더 구체적으로 판별한 결과를 반환한다.
+        FileType
+            추론된 확장자와 MIME 타입을 포함하는 FileType 인스턴스이다.
+            텍스트 파일은 Magika로 더 세밀하게 분류된 결과를 반영한다.
 
         Raises
         ------
@@ -43,51 +43,46 @@ class HybridInferencer(BaseInferencer):
         ValueError
             경로가 파일이 아닐 때 발생한다.
         RuntimeError
-            MIME 타입을 구하지 못했거나 확장자로 변환하지 못했을 때 발생한다.
+            MIME 타입을 구하지 못했을 때 발생한다.
 
         Examples
         --------
         >>> inferencer = HybridInferencer()
-        >>> inferencer.infer('script.py')
-        '.py'
-        >>> inferencer.infer('data.txt')  # May detect as .json if it's JSON content
-        '.json'
-        >>> inferencer.infer('document.pdf')
-        '.pdf'
+        >>> ft = inferencer.infer('document.pdf')
+        >>> '.pdf' in ft.extensions
+        True
         """
-        file_path_str = str(file_path)
-        path_obj = Path(file_path_str)
+        path_obj = Path(file_path)
+
+        # 파일 존재 여부와 타입을 미리 검증한다.
         if not path_obj.exists():
-            raise FileNotFoundError(f"File not found: {file_path_str}")
+            raise FileNotFoundError(f"File not found: {path_obj}")
         if not path_obj.is_file():
-            raise ValueError(f"Path is not a file: {file_path_str}")
+            raise ValueError(f"Path is not a file: {path_obj}")
 
-        mime_type = magic.from_file(file_path_str, mime=True)
+        # Magic으로 먼저 MIME 타입을 분석한다.
+        mime_type = magic.from_file(str(path_obj), mime=True)
         if mime_type is None:
-            raise RuntimeError(f"Cannot determine MIME type for file: {file_path_str}")
+            raise RuntimeError(f"Cannot determine MIME type for file: {path_obj}")
 
+        # 텍스트 파일일 경우 Magika로 추가 분석하여 더 세밀한 분류를 얻는다.
         if mime_type.startswith("text/"):
             try:
                 magika = Magika(prediction_mode=PredictionMode.MEDIUM_CONFIDENCE)
-                result = magika.identify_path(path=file_path_str)
+                result = magika.identify_path(path=str(path_obj))
 
                 extensions = result.output.extensions
                 if isinstance(extensions, list) and len(extensions) > 0:
                     extension = extensions[0]
                     if not extension.startswith("."):
                         extension = "." + extension
-                    return extension
+                    return FileType.from_extension(extension)
                 elif isinstance(extensions, str) and extensions:
                     extension = extensions
                     if not extension.startswith("."):
                         extension = "." + extension
-                    return extension
+                    return FileType.from_extension(extension)
             except Exception:
                 pass
 
-        extension = mimetypes.guess_extension(mime_type, strict=True)
-        if extension is None:
-            raise RuntimeError(
-                f"Cannot convert MIME type '{mime_type}' to extension for file: {file_path_str}"
-            )
-        return extension
+        return FileType.from_mimetype(mime_type)

@@ -9,6 +9,7 @@ from typing import Literal, Union
 from pathlib import Path
 
 from .base_inferencer import BaseInferencer
+from .file_type import FileType
 from .lexical_inferencer import LexicalInferencer
 from .magic_inferencer import MagicInferencer
 from .magika_inferencer import MagikaInferencer
@@ -62,8 +63,8 @@ class AutoInferencer(BaseInferencer):
     def __init__(self, backend: BackendType = "hybrid") -> None:
         self._inferencer: BaseInferencer = _BACKEND_MAP[backend]()
 
-    def infer(self, file_path: Union[Path, str]) -> str:
-        """설정된 backend를 사용해 파일 확장자를 추론한다.
+    def infer(self, file_path: Union[Path, str]) -> FileType:
+        """설정된 backend를 사용해 파일 타입을 추론한다.
 
         Parameters
         ----------
@@ -72,8 +73,8 @@ class AutoInferencer(BaseInferencer):
 
         Returns
         -------
-        str
-            앞에 점이 붙은 확장자 문자열이다.
+        FileType
+            추론된 확장자와 MIME 타입을 포함하는 FileType 인스턴스이다.
 
         Raises
         ------
