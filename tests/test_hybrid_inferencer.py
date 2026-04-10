@@ -141,14 +141,12 @@ class TestHybridInferencer:
 
     @patch("filetype_detector.hybrid_inferencer.Magika")
     @patch("filetype_detector.hybrid_inferencer.magic.from_file")
-    @patch("filetype_detector.hybrid_inferencer.mimetypes.guess_extension")
     def test_magika_failure_falls_back_to_magic(
-        self, mock_guess_ext, mock_magic, mock_magika_class, sample_text_file
+        self, mock_magic, mock_magika_class, sample_text_file
     ):
         """Test that Magika failure falls back to Magic result."""
         logger.debug("Testing fallback behavior when Magika fails")
         mock_magic.return_value = "text/plain"
-        mock_guess_ext.return_value = ".txt"
         mock_magika = MagicMock()
         mock_magika.identify_path.side_effect = Exception("Magika error")
         mock_magika_class.return_value = mock_magika
@@ -166,14 +164,12 @@ class TestHybridInferencer:
 
     @patch("filetype_detector.hybrid_inferencer.Magika")
     @patch("filetype_detector.hybrid_inferencer.magic.from_file")
-    @patch("filetype_detector.hybrid_inferencer.mimetypes.guess_extension")
     def test_magika_empty_result_falls_back_to_magic(
-        self, mock_guess_ext, mock_magic, mock_magika_class, sample_text_file
+        self, mock_magic, mock_magika_class, sample_text_file
     ):
         """Test that empty Magika result falls back to Magic."""
         logger.debug("Testing fallback when Magika returns empty result")
         mock_magic.return_value = "text/plain"
-        mock_guess_ext.return_value = ".txt"
         mock_magika = MagicMock()
         mock_result = MagicMock()
         mock_result.output.extensions = []  # Empty list
